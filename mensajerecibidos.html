@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mensajes Recibidos</title>
+  <style>
+    /* Estilos adicionales */
+    body {
+      font-family: Arial, sans-serif;
+    }
+    
+    /* Tarjetas de mensaje */
+    .message-card {
+      background-color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      padding: 16px;
+      margin: 12px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    /* Texto del mensaje */
+    .message-content {
+      font-size: 16px;
+    }
+    
+    /* Información del remitente */
+    .sender-info {
+      font-weight: bold;
+      font-size: 18px;
+    }
+    
+    /* Indicador de no leído */
+    .unread-dot {
+      width: 12px;
+      height: 12px;
+      background-color: #e74c3c;
+      border-radius: 50%;
+      margin-left: 8px;
+    }
+    
+    /* Detalles del mensaje */
+    #messageDetailsContainer {
+      background-color: #f9f9f9;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      padding: 16px;
+      margin-top: 16px;
+    }
+    
+    /* Botón de respuesta */
+    #replyButton {
+      background-color: #3498db;
+      color: #ffffff;
+      border: none;
+      border-radius: 4px;
+      padding: 8px 12px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    
+    /* Botón de respuesta al desplazar sobre él */
+    #replyButton:hover {
+      background-color: #2980b9;
+    }
+    .clickable-sender {
+      cursor: pointer;
+      text-decoration: underline; /* O cualquier otro estilo que prefieras */
+      /* Agregar otros estilos visuales según tus preferencias */
+    }
+    
+    .clickable-sender:hover {
+      background-color: #f2f2f2; /* Cambia el color de fondo al pasar el ratón */
+    }
+    
+  </style>
+</head>
+<body>
+  <h1>Mensajes Recibidos</h1>
+
+  <div id="receivedMessagesContainer">
+    <!-- Aquí se mostrarán los mensajes -->
+  </div>
+
+  <div id="messageDetailsContainer" style="display: none;">
+    <!-- Aquí se mostrarán los detalles del mensaje cuando se hace clic -->
+    <h2>Detalles del Mensaje</h2>
+    <p>Remitente: <span id="messageSenderName"></span></p>
+    <p>Mensaje: <span id="messageContent"></span></p>
+    <button id="replyButton">Responder</button>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <!-- Asegúrate de incluir el resto de los scripts de Firebase que utilizas en tus otros archivos -->
+
+  <script>
+    // Firebase project configuration (Replace with your own Firebase config)
+    const firebaseConfig = {
+        apiKey: "AIzaSyCgEaSuwHG0Qf3QCxjvk68U1RkoWIKMqmE",
+    authDomain: "chat-3dcc7.firebaseapp.com",
+    databaseURL: "https://chat-3dcc7-default-rtdb.firebaseio.com",
+    projectId: "chat-3dcc7",
+    storageBucket: "chat-3dcc7.appspot.com",
+    messagingSenderId: "25904698660",
+    appId: "1:25904698660:web:ad783930fd62e27134cfb1"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+
+    // Function to count unread messages for each sender
+    function countUnreadMessages(messagesData, currentUserUid) {
+      const senders = {};
+
+      for (const messageId in messagesData) {
+        const messageData = messagesData[messageId];
+        if (!messageData.isRead && messageData.recipientId === currentUserUid) {
+          senders[messageData.senderId] = senders[messageData.senderId] || 0;
+          senders[messageData.senderId]++;
+        }
+      }
+
+      return senders;
+    }
+
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        const currentUserUid = user.uid;
+        const receivedMessagesRef = firebase.database().ref("messages").orderByChild("recipientId").equalTo(currentUserUid);
+
+        receivedMessagesRef.on("value", (snapshot) => {
+          const messagesData = snapshot.val();
+          const sendersWithUnreadMessages = countUnreadMessages(messagesData, currentUserUid);
+
+          const receivedMessagesContainer = document.getElementById("receivedMessagesContainer");
+          receivedMessagesContainer.innerHTML = ''; // Limpiar el contenido anterior
+
+          for (const senderId in sendersWithUnreadMessages) {
+            // Obtener el nombre de usuario a partir del senderId utilizando Firebase
+            firebase.database().ref("users").child(senderId).child("name").once("value")
+              .then((snapshot) => {
+                const senderName = snapshot.val();
+                const unreadMessageCount = sendersWithUnreadMessages[senderId];
+
+                const senderDiv = document.createElement("div");
+senderDiv.innerHTML = `
+  <div class="message-card">
+    <h3 class="clickable-sender" data-sender-id="${senderId}">
+      <span style="color: #3498db;">Mensaje Recibido de:</span> ${senderName}
+    </h3>
+    <div class="unread-bubble">${unreadMessageCount}</div>
+  </div>
+`;
+
+                receivedMessagesContainer.appendChild(senderDiv);
+              })
+              .catch((error) => {
+                console.error("Error fetching sender name:", error);
+              });
+          }
+        });
+      } else {
+        // El usuario no está autenticado, redirige a la página de inicio de sesión o donde corresponda.
+        window.location.href = "tu-pagina-de-inicio-de-sesion.html";
+      }
+    });
+
+    // Event listener para mostrar detalles del mensaje y responder
+    document.getElementById("receivedMessagesContainer").addEventListener("click", (event) => {
+      const senderId = event.target.getAttribute("data-sender-id");
+      if (senderId) {
+        showMessageDetails(senderId);
+
+        // Marcar el mensaje como leído en Firebase
+        const currentUserUid = firebase.auth().currentUser.uid;
+        const messageRef = firebase.database().ref("messages");
+        messageRef.orderByChild("recipientId").equalTo(currentUserUid).once("value", (snapshot) => {
+          snapshot.forEach((childSnapshot) => {
+            const messageData = childSnapshot.val();
+            if (messageData.senderId === senderId && !messageData.isRead) {
+              messageRef.child(childSnapshot.key).update({ isRead: true });
+            }
+          });
+        });
+
+        // Ocultar el número de mensajes una vez que se haga clic en el remitente
+        const unreadBubble = event.target.nextElementSibling;
+        if (unreadBubble) {
+          unreadBubble.style.display = "none";
+        }
+      }
+    });
+
+    function showMessageDetails(senderId) {
+      const senderNameElement = document.getElementById("messageSenderName");
+      const messageContentElement = document.getElementById("messageContent");
+      const replyButton = document.getElementById("replyButton");
+
+      // Obtener el nombre del remitente y el contenido del mensaje desde Firebase
+      firebase.database().ref("users").child(senderId).child("name").once("value")
+        .then((snapshot) => {
+          const senderName = snapshot.val();
+          senderNameElement.textContent = senderName;
+
+          // Asegurarse de reemplazar "messagesData" con tu referencia real a los datos de mensajes en Firebase
+          // Obtener el contenido del mensaje y mostrarlo
+          // const messageData = messagesData[messageId];
+          // const messageContent = messageData.message;
+          // messageContentElement.textContent = messageContent;
+
+          // Mostrar el contenedor de detalles del mensaje
+          document.getElementById("messageDetailsContainer").style.display = "block";
+        })
+        .catch((error) => {
+          console.error("Error fetching sender name:", error);
+        });
+
+      // Event listener para el botón de respuesta
+      replyButton.addEventListener("click", () => {
+        // Redirigir a la página de chat privado con el remitente
+        window.location.href = `chatprivado.html?recipient=${senderId}`;
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat</title>
+  <style>
+/* Estilos Generales */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(135deg, #2980b9, #e74c3c);
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+/* Encabezado */
+h1 {
+  text-align: center;
+  margin-top: 20px;
+  color: #fff;
+  font-size: 24px;
+  padding: 0 10px;
+}
+
+/* Botones */
+button {
+  background-color: #ff5722;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  cursor: pointer;
+  margin: 5px;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #ff713e;
+}
+
+/* Contenedor de búsqueda */
+#searchContainer {
+  margin: 20px auto;
+  width: 90%;
+  padding: 20px;
+  border-radius: 5px;
+  background-color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Etiquetas de búsqueda */
+#searchContainer label {
+  display: block;
+  font-weight: bold;
+  margin-top: 10px;
+  color: #555;
+}
+
+/* Campos de entrada */
+.search-input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  font-size: 14px;
+}
+
+/* Botón de búsqueda */
+#searchUsersBtn {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  cursor: pointer;
+  margin-top: 20px;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+#searchUsersBtn:hover {
+  background-color: #45a049;
+}
+
+/* Tarjetas de usuario */
+.user-card {
+  border: 1px solid #ccc;
+  padding: 20px;
+  margin: 20px auto;
+  border-radius: 5px;
+  width: 90%;
+  background-color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.user-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.user-card img {
+  max-width: 100%;
+  height: auto;
+  margin-bottom: 10px;
+  border-radius: 5px;
+}
+
+.user-card h2 {
+  margin: 0;
+  font-size: 18px;
+  color: #333;
+}
+
+.user-card p {
+  margin: 5px 0;
+  color: #777;
+  font-size: 14px;
+}
+
+.chat-button {
+  background-color: #ff5722;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.chat-button:hover {
+  background-color: #ff713e;
+}
+
+/* Estilos para el chat */
+/* ... */
+
+/* Estilos para el pie de página */
+/* ... */
+
+
+
+
+
+
+  </style>
+</head>
+<body>
+  <h1>Chat</h1>
+
+  <button id="goToMyProfileBtn">Ir a Mi Perfil</button>
+
+  <button id="showUserCardsBtn">Mostrar Tarjetas de Usuarios</button>
+
+  <button id="viewReceivedMessagesBtn">Ver Mensajes Recibidos</button>
+
+  <div id="searchContainer" style="display: none;">
+    <h2>Buscar Usuarios</h2>
+    <label for="usernameInput">Nombre de usuario:</label>
+    <input type="text" id="usernameInput" class="search-input" data-field="name">
+    <label for="minAgeInput">Edad mínima:</label>
+    <input type="number" id="minAgeInput" class="search-input" data-field="minAge">
+    <label for="maxAgeInput">Edad máxima:</label>
+    <input type="number" id="maxAgeInput" class="search-input" data-field="maxAge">
+    <label for="genderInput">Género:</label>
+    <select id="genderInput" class="search-input" data-field="gender">
+      <!-- Opciones para género (se llenarán automáticamente usando JavaScript) -->
+    </select>
+    <label for="countryInput">País:</label>
+    <select id="countryInput" class="search-input" data-field="country">
+      <!-- Opciones para país (se llenarán automáticamente usando JavaScript) -->
+    </select>
+    <label for="locationInput">Estado:</label>
+    <input type="text" id="locationInput" class="search-input" data-field="location">
+    <label for="interestsInput">Intereses y aficiones:</label>
+    <input type="text" id="interestsInput" class="search-input" data-field="interests">
+    <button id="searchUsersBtn">Buscar</button>
+  </div>
+
+  <div id="userCardsContainer"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.2/awesomplete.min.js"></script>
+  <script>
+    // Código JavaScript ... (se mantiene igual)
+    // Código JavaScript ...
+    const firebaseConfig = {
+      apiKey: "AIzaSyCgEaSuwHG0Qf3QCxjvk68U1RkoWIKMqmE",
+  authDomain: "chat-3dcc7.firebaseapp.com",
+  databaseURL: "https://chat-3dcc7-default-rtdb.firebaseio.com",
+  projectId: "chat-3dcc7",
+  storageBucket: "chat-3dcc7.appspot.com",
+  messagingSenderId: "25904698660",
+  appId: "1:25904698660:web:ad783930fd62e27134cfb1"
+  };
+
+firebase.initializeApp(firebaseConfig);
+
+const database = firebase.database();
+
+document.getElementById("goToMyProfileBtn").addEventListener("click", function() {
+  const user = firebase.auth().currentUser;
+  if (user) {
+    window.location.href = "miperfil.html";
+  } else {
+    console.error("Usuario no ha iniciado sesión.");
+  }
+});
+
+document.getElementById("showUserCardsBtn").addEventListener("click", function() {
+  const userCardsContainer = document.getElementById("userCardsContainer");
+  const searchContainer = document.getElementById("searchContainer");
+  userCardsContainer.innerHTML = "";
+  searchContainer.style.display = "block";
+
+  database.ref("users").on("value", (snapshot) => {
+    const usersData = snapshot.val();
+    performSearchAndUpdateUI(usersData);
+  });
+});
+
+document.getElementById("searchUsersBtn").addEventListener("click", function() {
+  const userCardsContainer = document.getElementById("userCardsContainer");
+  userCardsContainer.innerHTML = "";
+
+  database.ref("users").on("value", (snapshot) => {
+    const usersData = snapshot.val();
+    performSearchAndUpdateUI(usersData);
+  });
+});
+
+function performSearchAndUpdateUI(usersData) {
+  const username = document.getElementById("usernameInput").value.toLowerCase();
+  const minAge = parseInt(document.getElementById("minAgeInput").value) || 0;
+  const maxAge = parseInt(document.getElementById("maxAgeInput").value) || Infinity;
+  const gender = document.getElementById("genderInput").value.toLowerCase();
+  const country = document.getElementById("countryInput").value.toLowerCase();
+  const location = document.getElementById("locationInput").value.toLowerCase();
+  const interests = document.getElementById("interestsInput").value.toLowerCase();
+
+  const filteredUsers = Object.entries(usersData).filter(([userId, userData]) => {
+    const userMatchesSearch =
+      (username === '' || userData.name.toLowerCase().includes(username)) &&
+      (userData.age >= minAge && userData.age <= maxAge) &&
+      (gender === '' || userData.gender.toLowerCase().includes(gender)) &&
+      (country === '' || userData.country.toLowerCase().includes(country)) &&
+      (location === '' || userData.location.toLowerCase().includes(location)) &&
+      (interests === '' || userData.interests.toLowerCase().includes(interests));
+    return userMatchesSearch;
+  });
+
+  updateUIWithSearchResults(filteredUsers);
+}
+
+function updateUIWithSearchResults(filteredUsers) {
+  const userCardsContainer = document.getElementById("userCardsContainer");
+  for (const [userId, userData] of filteredUsers) {
+    const userCard = createUserCard(userData, userId);
+    userCardsContainer.appendChild(userCard);
+  }
+}
+
+function createUserCard(userData, userId) {
+  const card = document.createElement("div");
+  card.classList.add("user-card");
+  const profileImageURL = userData.profileImage || 'URL_POR_DEFECTO_SI_NO_HAY_IMAGEN';
+
+  card.innerHTML = `
+    <img src="${profileImageURL}" alt="${userData.name}'s profile picture">
+    <h2>${userData.name}</h2>
+    <p>Edad: ${userData.age}</p>
+    <p>Género: ${userData.gender}</p>
+    <p>País: ${userData.country}</p>
+    <p>Intereses: ${userData.interests}</p>
+    <p>Ubicación: ${userData.location}</p>
+    <button class="chat-button" data-user-id="${userId}">Chat</button>
+  `;
+
+  card.querySelector(".chat-button").addEventListener("click", function() {
+    const selectedUserId = this.getAttribute("data-user-id");
+    const user = firebase.auth().currentUser;
+    if (user) {
+      window.location.href = `chatprivado.html?recipient=${selectedUserId}`;
+    } else {
+      console.error("Usuario no ha iniciado sesión.");
+    }
+  });
+
+  return card;
+}
+
+// Llenar opciones de género en los campos de selección
+const genderSelect = document.getElementById("genderInput");
+const genderOptions = [
+  "Masculino", "Femenino", "No Binario", "Género Fluido",
+  "A género", "Transgénero", "Intergénero", "Androginia",
+  "Bigénero", "Demigénero", "Pangénero", "Neutrois",
+  "Dos Espíritus", "Otro", "Heterosexual", "Homosexual",
+  "Bisexual", "Pansexual", "Asexual"
+];
+genderOptions.forEach(option => {
+  const optionElement = document.createElement("option");
+  optionElement.value = option.toLowerCase();
+  optionElement.textContent = option;
+  genderSelect.appendChild(optionElement);
+});
+
+// Llenar opciones de países en el campo de selección de país
+const countrySelect = document.getElementById("countryInput");
+fetch("https://restcountries.com/v3/all")
+  .then(response => response.json())
+  .then(data => {
+    const countries = data.map(country => {
+      const name = country.name.common;
+      return `<option value="${name}">${name}</option>`;
+    }).sort();
+    countrySelect.innerHTML = countries.join("");
+  });
+
+// En chat.html, dentro del script
+document.getElementById("viewReceivedMessagesBtn").addEventListener("click", function() {
+  window.location.href = "mensajerecibidos.html";
+});
+
+// ... (resto del código) ...
+</script>
+
+  
+</body>
+</html>

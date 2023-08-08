@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi Perfil</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom right, #3498db, #e74c3c);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    
+    h1 {
+      text-align: center;
+      color: #fff;
+      margin-bottom: 20px;
+    }
+    
+    form {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 500px;
+      box-sizing: border-box;
+    }
+    
+    label {
+      font-weight: bold;
+    }
+    
+    input[type="text"],
+    input[type="number"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    
+    select {
+      appearance: none;
+    }
+    
+    button[type="submit"] {
+      background-color: #3498db;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      width: 100%;
+    }
+    
+    button[type="submit"]:hover {
+      background-color: #2980b9;
+    }
+    
+    /* Additional styling for profile photo input */
+    input[type="file"] {
+      display: none;
+    }
+    
+    .file-input-label {
+      display: inline-block;
+      background-color: #3498db;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    
+    .file-input-label:hover {
+      background-color: #2980b9;
+    }
+    
+    /* Center country select */
+    #countryInput {
+      margin: 0 auto;
+    }
+    
+    /* Responsive adjustments */
+    @media screen and (max-width: 768px) {
+      form {
+        padding: 15px;
+      }
+    }
+    /* Additional styling for profile photo input */
+.input-container {
+  display: flex;
+  align-items: center;
+}
+
+.input-container .file-input-label {
+  background-color: #3498db;
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  display: inline-block;
+  margin-right: 10px;
+}
+
+.input-container .file-input-label:hover {
+  background-color: #2980b9;
+}
+
+.file-input {
+  display: none;
+}
+
+    
+  </style>
+</head>
+<body>
+  <h1>Mi Perfil</h1>
+  
+  <form id="profileDataForm">
+    <label for="nameInput">Nombre de usuario:</label>
+    <input type="text" id="nameInput" required>
+    <br>
+    <label for="ageInput">Edad:</label>
+    <input type="number" id="ageInput" required>
+    <br>
+    <label for="genderInput">Género:</label>
+    <select id="genderInput" required>
+      <option value="masculino">Masculino</option>
+      <option value="femenino">Femenino</option>
+      <option value="no_binario">No Binario</option>
+      <option value="genero_fluido">Género Fluido</option>
+      <option value="agenero">A género</option>
+      <option value="transgenero">Transgénero</option>
+      <option value="intergenero">Intergénero</option>
+      <option value="androginia">Androginia</option>
+      <option value="bigenero">Bigénero</option>
+      <option value="demigenero">Demigénero</option>
+      <option value="pangenero">Pangénero</option>
+      <option value="neutrois">Neutrois</option>
+      <option value="dos_espiritus">Dos Espíritus</option>
+      <option value="otro">Otro</option>
+      <option value="heterosexual">Heterosexual</option>
+      <option value="homosexual">Homosexual</option>
+      <option value="bisexual">Bisexual</option>
+      <option value="pansexual">Pansexual</option>
+      <option value="asexual">Asexual</option>
+    </select>
+    <br>
+    <label for="preferenceInput">Preferencia de género:</label>
+    <select id="preferenceInput" required>
+      <option value="masculino">Masculino</option>
+      <option value="femenino">Femenino</option>
+      <option value="no_binario">No Binario</option>
+      <option value="genero_fluido">Género Fluido</option>
+      <option value="agenero">A género</option>
+      <option value="transgenero">Transgénero</option>
+      <option value="intergenero">Intergénero</option>
+      <option value="androginia">Androginia</option>
+      <option value="bigenero">Bigénero</option>
+      <option value="demigenero">Demigénero</option>
+      <option value="pangenero">Pangénero</option>
+      <option value="neutrois">Neutrois</option>
+      <option value="dos_espiritus">Dos Espíritus</option>
+      <option value="otro">Otro</option>
+      <option value="heterosexual">Heterosexual</option>
+      <option value="homosexual">Homosexual</option>
+      <option value="bisexual">Bisexual</option>
+      <option value="pansexual">Pansexual</option>
+      <option value="asexual">Asexual</option>
+    </select>
+    <br>
+    <label for="countryInput">País:</label>
+    <select id="countryInput" required>
+      <!-- Las opciones se llenarán automáticamente usando JavaScript -->
+    </select>
+    <br>
+    <label for="locationInput">Estado:</label>
+    <input type="text" id="locationInput" required>
+    <br>
+    <label for="photoInput">Foto de perfil:</label>
+<div class="input-container">
+  <label class="file-input-label" for="photoInput">Seleccionar Foto</label>
+  <input class="file-input" type="file" id="photoInput" accept="image/*" required>
+</div>
+<br>
+    <label for="interestsInput">Intereses y aficiones:</label>
+    <textarea id="interestsInput" rows="4" required></textarea>
+    <br>
+    <button type="submit">Guardar Perfil</button>
+  </form>
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+  <script>
+    // Firebase project configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyCgEaSuwHG0Qf3QCxjvk68U1RkoWIKMqmE",
+  authDomain: "chat-3dcc7.firebaseapp.com",
+  databaseURL: "https://chat-3dcc7-default-rtdb.firebaseio.com",
+  projectId: "chat-3dcc7",
+  storageBucket: "chat-3dcc7.appspot.com",
+  messagingSenderId: "25904698660",
+  appId: "1:25904698660:web:ad783930fd62e27134cfb1"
+  };
+
+    // Inicializar Firebase
+    firebase.initializeApp(firebaseConfig);
+
+    // Obtener referencia a la base de datos y almacenamiento
+    const database = firebase.database();
+    const storage = firebase.storage();
+
+    // Llenar opciones de países
+    const countrySelect = document.getElementById("countryInput");
+
+    fetch("https://restcountries.com/v3/all")
+      .then(response => response.json())
+      .then(data => {
+        const countries = data.map(country => {
+          const name = country.name.common;
+          return `<option value="${name}">${name}</option>`;
+        }).sort();
+        
+        countrySelect.innerHTML = countries.join("");
+      });
+
+    // Event listener para el envío del formulario
+    document.getElementById('profileDataForm').addEventListener('submit', async function(event) {
+      event.preventDefault(); // Prevenir el envío predeterminado del formulario
+
+      // Obtener valores de entrada
+      const name = document.getElementById('nameInput').value.trim();
+      const age = document.getElementById('ageInput').value;
+      const gender = document.getElementById('genderInput').value.trim();
+      const preference = document.getElementById('preferenceInput').value.trim();
+      const country = document.getElementById('countryInput').value.trim();
+      const location = document.getElementById('locationInput').value.trim();
+      const interests = document.getElementById('interestsInput').value.trim();
+      const photo = document.getElementById('photoInput').files[0];
+
+      // Guardar imagen de perfil en Firebase Storage
+      const user = firebase.auth().currentUser;
+      if (user && photo) {
+        const userId = user.uid;
+        const storageRef = storage.ref('profile_photos/' + userId);
+        
+        try {
+          const snapshot = await storageRef.put(photo);
+          const profileImageURL = await snapshot.ref.getDownloadURL();
+
+          // Guardar datos del perfil en la base de datos en tiempo real
+          database.ref('users/' + userId).set({
+            name: name,
+            age: age,
+            gender: gender,
+            preference: preference,
+            country: country,
+            location: location,
+            interests: interests,
+            profileImage: profileImageURL
+          }).then(() => {
+            console.log('Datos del perfil guardados en la base de datos en tiempo real.');
+            // Mostrar alerta de éxito al usuario
+            alert('¡Datos guardados con éxito!');
+          }).catch((error) => {
+            console.error('Error al guardar los datos del perfil:', error);
+          });
+        } catch (error) {
+          console.error('Error al cargar la foto de perfil:', error);
+        }
+      } else {
+        console.error('Usuario no ha iniciado sesión o no se seleccionó una foto.');
+      }
+    });
+  </script>
+</body>
+</html>

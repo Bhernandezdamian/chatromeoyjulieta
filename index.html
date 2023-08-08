@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Romeo Y JulietApp</title>
+  <style>
+     /* Reset default styles */
+     body, h1, h2, p {
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Set background color and font */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f6f9;
+    }
+
+    /* Container styles */
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 30px;
+      background-color: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    h1, h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    /* Form styles */
+    form {
+      display: flex;
+      flex-direction: column;
+      
+    }
+
+    label, input, button {
+      margin-bottom: 15px;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+      color: #0c0c0c;
+      transition: border-color 0.3s;
+    }
+
+    input[type="password"] {
+      font-family: monospace;
+      color: #080808;
+    }
+
+    input:focus, textarea:focus {
+      border-color: #007bff;
+    }
+
+    button {
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    /* Error message styles */
+    .error {
+      color: #e74c3c;
+      margin-top: 5px;
+      font-size: 14px;
+    }
+
+    /* Media queries for mobile devices */
+    @media (max-width: 767px) {
+      .container {
+        padding: 15px;
+      }
+
+      form {
+        padding: 15px;
+      }
+
+      label, input, button {
+        padding: 10px;
+        font-size: 14px;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+
+      h2 {
+        font-size: 20px;
+      }
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background: url('ruta/a/tu/imagen.jpg') no-repeat center center fixed;
+      background-size: cover;
+      background-color: #f4f6f9;
+      margin: 0;
+      padding: 0;
+    }
+    
+  </style>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+</head>
+<body style="background: url('fondo.jpg') no-repeat center center fixed; background-size: cover; margin: 0; padding: 0;"></body>
+<body>
+  <h1 style="text-align: center; font-size: 36px; font-weight: bold; color: #f0f2f3; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1); font-family: 'Arial', sans-serif;">Romeo Y JulietApp</h1>
+
+  <button id="registerBtn">Register</button>
+  <button id="loginBtn">Login</button>
+
+  <form id="registrationForm" style="display: none;">
+    <label for="name">Name:</label>
+    <input type="text" id="name" required><br>
+
+    <label for="email">Email:</label>
+    <input type="email" id="email" required><br>
+
+    <label for="password">Password:</label>
+    <input type="password" id="password" required minlength="8" pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$" title="Password must be at least 8 characters long, containing at least one uppercase letter, one lowercase letter, one number, and one special character (@$!%*?&)">
+    <p id="passwordRequirements" style="display: none; color: gray; font-size: 0.8em;"></p>
+    <br>
+
+    <label for="confirmPassword">Confirm Password:</label>
+    <input type="password" id="confirmPassword" required><br>
+
+    <button type="submit">Register</button>
+  </form>
+
+  <p id="errorDisplay" style="color: red;"></p>
+
+  <h2></h2>
+  <form id="loginForm" style="display: none;">
+    <label for="loginEmail">Email:</label>
+    <input type="email" id="loginEmail" required><br>
+
+    <label for="loginPassword">Password:</label>
+    <input type="password" id="loginPassword" required><br>
+
+    <button type="submit">Login</button>
+    <button type="button" id="forgotPasswordBtn">Forgot Password</button>
+  </form>
+
+  <p id="loginErrorDisplay" style="color: red;"></p>
+
+  <script>
+    // Firebase project configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyCgEaSuwHG0Qf3QCxjvk68U1RkoWIKMqmE",
+  authDomain: "chat-3dcc7.firebaseapp.com",
+  databaseURL: "https://chat-3dcc7-default-rtdb.firebaseio.com",
+  projectId: "chat-3dcc7",
+  storageBucket: "chat-3dcc7.appspot.com",
+  messagingSenderId: "25904698660",
+  appId: "1:25904698660:web:ad783930fd62e27134cfb1"
+  };
+
+    // Inicializar Firebase
+    firebase.initializeApp(firebaseConfig);
+
+    // Mostrar formulario de registro al hacer clic en el botón de registro
+    document.getElementById('registerBtn').addEventListener('click', function() {
+      document.getElementById('registrationForm').style.display = 'block';
+      document.getElementById('loginForm').style.display = 'none';
+      document.getElementById('errorDisplay').textContent = '';
+      document.getElementById('loginErrorDisplay').textContent = '';
+    });
+
+    // Mostrar formulario de inicio de sesión al hacer clic en el botón de inicio
+    document.getElementById('loginBtn').addEventListener('click', function() {
+      document.getElementById('registrationForm').style.display = 'none';
+      document.getElementById('loginForm').style.display = 'block';
+      document.getElementById('errorDisplay').textContent = '';
+      document.getElementById('loginErrorDisplay').textContent = '';
+    });
+
+    // Función para mostrar error en el formulario de registro o inicio de sesión
+    function displayErrorMessage(message) {
+      const errorDisplay = document.getElementById('errorDisplay');
+      errorDisplay.textContent = message;
+    }
+
+    // Función para mostrar error en el formulario de inicio de sesión
+    function displayLoginErrorMessage(message) {
+      const loginErrorDisplay = document.getElementById('loginErrorDisplay');
+      loginErrorDisplay.textContent = message;
+    }
+
+    // Función para redirigir a chat.html después del registro exitoso
+    function redirectToChatPage() {
+      window.location.href = 'chat.html';
+    }
+
+    // Registrar evento al enviar el formulario de registro
+    document.getElementById('registrationForm').addEventListener('submit', function(event) {
+      event.preventDefault(); // Evitar el envío del formulario por defecto
+
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+
+      if (password !== confirmPassword) {
+        displayErrorMessage("Passwords do not match.");
+        return;
+      }
+
+      // Crear cuenta de usuario en Firebase Authentication
+      firebase.auth().createUserWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          const user = userCredential.user;
+
+          // Guardar información adicional del usuario en la Realtime Database
+          const userData = {
+            name: name,
+            email: email,
+            // Agregar otros datos de usuario que desees guardar
+          };
+
+          firebase.database().ref('users/' + user.uid).set(userData)
+            .then(() => {
+              // Registro exitoso
+              alert('Registration successful! You have been registered successfully.');
+              redirectToChatPage(); // Redirigir al usuario a chat.html después del registro exitoso
+            })
+            .catch((error) => {
+              console.error('Error saving user data to Realtime Database:', error);
+            });
+        })
+        .catch((error) => {
+          console.error('Error creating user account:', error);
+          displayErrorMessage(error.message);
+        });
+    });
+
+    // Registrar evento al enviar el formulario de inicio de sesión
+    document.getElementById('loginForm').addEventListener('submit', function(event) {
+      event.preventDefault(); // Evitar el envío del formulario por defecto
+
+      const loginEmail = document.getElementById('loginEmail').value;
+      const loginPassword = document.getElementById('loginPassword').value;
+
+      // Iniciar sesión del usuario con Firebase Authentication
+      firebase.auth().signInWithEmailAndPassword(loginEmail, loginPassword)
+        .then((userCredential) => {
+          // Inicio de sesión exitoso
+          alert('Inicio de sesión exitoso!');
+          redirectToChatPage(); // Redirigir a chat.html después del inicio de sesión exitoso
+        })
+        .catch((error) => {
+          // Inicio de sesión fallido
+          console.error('Error logging in:', error);
+          displayLoginErrorMessage(error.message);
+        });
+    });
+
+    // Registrar evento al hacer clic en el botón de "Forgot Password"
+    document.getElementById('forgotPasswordBtn').addEventListener('click', function(event) {
+      const email = prompt('Please enter your email to reset your password:');
+      if (email) {
+        firebase.auth().sendPasswordResetEmail(email)
+          .then(() => {
+            alert('Password reset email sent. Please check your inbox.');
+          })
+          .catch((error) => {
+            console.error('Error sending password reset email:', error);
+            alert('Error sending password reset email. Please try again later.');
+          });
+      }
+    });
+
+    // Mostrar los requisitos de contraseña cuando el usuario escribe
+    const passwordInput = document.getElementById('password');
+    const passwordRequirements = document.getElementById('passwordRequirements');
+
+    passwordInput.addEventListener('input', function() {
+      const password = passwordInput.value;
+      const requirementsMessage = [];
+
+      if (!/(?=.*[a-z])/.test(password)) {
+        requirementsMessage.push("at least one lowercase letter");
+      }
+
+      if (!/(?=.*[A-Z])/.test(password)) {
+        requirementsMessage.push("at least one uppercase letter");
+      }
+
+      if (!/(?=.*\d)/.test(password)) {
+        requirementsMessage.push("at least one number");
+      }
+
+      if (!/(?=.*[@$!%*?&])/.test(password)) {
+        requirementsMessage.push("at least one special character (@$!%*?&)");
+      }
+
+      if (password.length < 8) {
+        requirementsMessage.push("at least 8 characters long");
+      }
+
+      if (requirementsMessage.length === 0) {
+        passwordRequirements.style.display = 'none';
+      } else {
+        passwordRequirements.textContent = "Password must contain " + requirementsMessage.join(", ") + ".";
+        passwordRequirements.style.display = 'block';
+      }
+    });
+  </script>
+</body>
+</html>

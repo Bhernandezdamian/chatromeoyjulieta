@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buscar Usuarios</title>
+  <!-- Add Firebase SDKs here if needed -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+  <style>
+    /* Estilos para la imagen de perfil */
+    .userPhoto {
+      width: 200px; /* Ajusta el ancho según tus preferencias */
+      height: 200px; /* Ajusta la altura según tus preferencias */
+      border-radius: 50%; /* Para mostrar una imagen redonda, si lo deseas */
+      object-fit: cover; /* Para ajustar la imagen dentro del contenedor sin deformarla */
+    }
+  </style>
+</head>
+<body>
+  <h1>Buscar Usuarios</h1>
+  
+  <div id="userProfile">
+    <h2 id="userName"></h2>
+    <p>Edad: <span id="userAge"></span></p>
+    <p>Género: <span id="userGender"></span></p>
+    <p>Preferencia de género: <span id="userPreference"></span></p>
+    <p>Ubicación general: <span id="userLocation"></span></p>
+    <p>Intereses y aficiones: <span id="userInterests"></span></p>
+    <!-- Agrega una clase "userPhoto" al elemento img -->
+    <img src="" alt="User Profile Photo" id="userPhoto" class="userPhoto">
+  </div>
+
+  <div id="navigationButtons">
+    <button id="previousButton">Anterior</button>
+    <button id="nextButton">Siguiente</button>
+  </div>
+
+  <script>
+    // Firebase project configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyCgEaSuwHG0Qf3QCxjvk68U1RkoWIKMqmE",
+    authDomain: "chat-3dcc7.firebaseapp.com",
+    databaseURL: "https://chat-3dcc7-default-rtdb.firebaseio.com",
+    projectId: "chat-3dcc7",
+    storageBucket: "chat-3dcc7.appspot.com",
+    messagingSenderId: "25904698660",
+    appId: "1:25904698660:web:ad783930fd62e27134cfb1"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+
+    // Get a reference to the database and storage
+    const database = firebase.database();
+    const storage = firebase.storage();
+
+    let users = [];
+    let currentIndex = 0;
+
+    // Verificar si el usuario está autenticado
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        // Si el usuario está autenticado, carga los datos de los usuarios y muestra las imágenes de perfil
+        firebase.database().ref('users').once('value')
+          .then((snapshot) => {
+            users = Object.values(snapshot.val());
+            showUserProfile(currentIndex);
+          })
+          .catch((error) => {
+            console.error('Error fetching users:', error);
+          });
+      } else {
+        // Si el usuario no está autenticado, redirige a la página de inicio de sesión o muestra un mensaje para autenticarse.
+        // Aquí debes implementar la lógica adecuada para manejar la autenticación de usuarios en tu aplicación.
+        console.log("Usuario no autenticado. Redirige a la página de inicio de sesión o muestra un mensaje para autenticarse.");
+      }
+    });
+
+    // Function to show the user profile data on the page
+    function showUserProfile(index) {
+      const userProfile = users[index];
+      document.getElementById('userName').textContent = userProfile.name || "Nombre no disponible";
+      document.getElementById('userAge').textContent = userProfile.age || "Edad no disponible";
+      document.getElementById('userGender').textContent = userProfile.gender || "Género no disponible";
+      document.getElementById('userPreference').textContent = userProfile.preference || "Preferencia de género no disponible";
+      document.getElementById('userLocation').textContent = userProfile.location || "Ubicación general no disponible";
+      document.getElementById('userInterests').textContent = userProfile.interests || "Intereses y aficiones no disponibles";
+
+      // URL de la imagen por defecto
+      const defaultPhotoURL = "https://storage.googleapis.com/chat-3dcc7.appspot.com/profile_photos/default_profile_photo.png";
+
+      const storageRef = storage.ref('profile_photos/' + userProfile.userId);
+      storageRef
+        .getDownloadURL()
+        .then((url) => {
+          // Actualiza la imagen del perfil con la URL de descarga de Firebase Storage
+          const userPhotoElement = document.getElementById('userPhoto');
+          userPhotoElement.src = url;
+        })
+        .catch((error) => {
+          // Handle error when the user's profile photo is not available
+          // Si la imagen del usuario no está disponible, muestra la imagen por defecto
+          const userPhotoElement = document.getElementById('userPhoto');
+          userPhotoElement.src = defaultPhotoURL;
+        });
+    }
+
+    // Event listener for the "Anterior" button
+    document.getElementById('previousButton').addEventListener('click', function () {
+      currentIndex = (currentIndex - 1 + users.length) % users.length;
+      showUserProfile(currentIndex);
+    });
+
+    // Event listener for the "Siguiente" button
+    document.getElementById('nextButton').addEventListener('click', function () {
+      currentIndex = (currentIndex + 1) % users.length;
+      showUserProfile(currentIndex);
+    });
+  </script>
+</body>
+</html>

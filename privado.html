@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Private Chat</title>
+</head>
+<body>
+  <h1>Private Chat</h1>
+
+  <!-- Section to display the profile data of the recipient -->
+  <div id="recipientProfileContainer" style="display: none;">
+    <h2>Perfil del destinatario</h2>
+    <img id="recipientProfilePhoto" src="" alt="Profile Photo">
+    <p id="recipientProfileName"></p>
+    <p id="recipientProfileAge"></p>
+    <p id="recipientProfileGender"></p>
+    <!-- Display other profile data here as needed -->
+  </div>
+
+  <div id="privateChatArea"></div>
+
+  <form id="privateChatForm">
+    <input type="text" id="privateMessageInput" required placeholder="Type your private message...">
+    <button type="submit">Send</button>
+  </form>
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+  <script>
+    // Firebase project configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyCgEaSuwHG0Qf3QCxjvk68U1RkoWIKMqmE",
+  authDomain: "chat-3dcc7.firebaseapp.com",
+  databaseURL: "https://chat-3dcc7-default-rtdb.firebaseio.com",
+  projectId: "chat-3dcc7",
+  storageBucket: "chat-3dcc7.appspot.com",
+  messagingSenderId: "25904698660",
+  appId: "1:25904698660:web:ad783930fd62e27134cfb1"
+  };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+
+    // Get a reference to the database
+    const database = firebase.database();
+
+    // Function to display profile data of the recipient
+    function displayRecipientProfileData(profileData) {
+      const recipientProfileContainer = document.getElementById('recipientProfileContainer');
+      const recipientProfilePhoto = document.getElementById('recipientProfilePhoto');
+      const recipientProfileName = document.getElementById('recipientProfileName');
+      const recipientProfileAge = document.getElementById('recipientProfileAge');
+      const recipientProfileGender = document.getElementById('recipientProfileGender');
+
+      // Set the recipient's profile photo and data
+      recipientProfilePhoto.src = profileData.profilePhotoUrl || 'default-profile-photo.png';
+      recipientProfileName.textContent = `Nombre: ${profileData.name}`;
+      recipientProfileAge.textContent = `Edad: ${profileData.age}`;
+      recipientProfileGender.textContent = `Género: ${profileData.gender}`;
+      // Set other profile data here as needed
+
+      // Show the recipient's profile container
+      recipientProfileContainer.style.display = 'block';
+    }
+
+    // Function to display private chat messages
+    function displayPrivateMessage(sender, message) {
+      const privateChatArea = document.getElementById('privateChatArea');
+      const messageElement = document.createElement('p');
+      messageElement.textContent = sender + ': ' + message;
+      privateChatArea.appendChild(messageElement);
+    }
+
+    // Get a reference to the private messages in the Realtime Database
+    const privateChatRef = database.ref('private-chat');
+
+    // ... Code for sending private messages ...
+
+    // Event listener to handle when a user is selected for private messaging
+    document.getElementById('privateMessageList').addEventListener('click', function (event) {
+      if (event.target.tagName === 'A') {
+        selectedUserId = event.target.dataset.userId; // Store the selected user's ID
+        document.getElementById('privateMessageList').style.display = 'none'; // Hide the list of users
+        loadSelectedUserProfile(selectedUserId); // Load the selected user's profile data
+      }
+    });
+
+    // Function to load the profile data of the selected user for private messaging
+    function loadSelectedUserProfile(userId) {
+      database.ref('users/' + userId).once('value')
+        .then((snapshot) => {
+          const userData = snapshot.val();
+          displayRecipientProfileData(userData);
+
+          // Load the recipient's profile photo from Firebase Storage
+          const storageRef = firebase.storage().ref('profile_photos/' + userId);
+          storageRef.getDownloadURL()
+            .then((url) => {
+              document.getElementById('recipientProfilePhoto').src = url;
+            })
+            .catch((error) => {
+              console.error('Error fetching recipient profile photo:', error);
+            });
+        })
+        .catch((error) => {
+          console.error('Error fetching user data:', error);
+        });
+    }
+
+    // Display private chat messages
+    privateChatRef.on('child_added', (snapshot) => {
+      const messageData = snapshot.val();
+      const currentUser = firebase.auth().currentUser;
+      if (currentUser && (currentUser.uid === messageData.senderId || currentUser.uid === messageData.recipientId)) {
+        displayPrivateMessage(messageData.senderName, messageData.message);
+      }
+    });
+  </script>
+</body>
+</html>

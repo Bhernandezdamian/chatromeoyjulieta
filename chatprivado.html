@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat Privado</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/emojionearea/3.4.2/emojionearea.min.css">
+   <style>
+    @media (max-width: 768px) {
+      body {
+        font-size: 14px;
+      }
+    
+      #messageContainer {
+        margin: 10px;
+      }
+    
+      /* Otros ajustes de estilo aquí */
+    }
+   </style>
+</head>
+<body>
+  <h1>Chat Privado</h1>
+  
+  <div id="messageContainer">
+    <!-- Messages will be displayed here -->
+  </div>
+
+  <form id="sendMessageForm">
+    <input type="file" id="imageInput" accept="image/*">
+    <textarea id="messageInput" placeholder="Type your message..." required></textarea>
+    <button type="submit">Send</button>
+  </form>
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- Add jQuery library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/emojionearea/3.4.2/emojionearea.min.js"></script> <!-- Add emojionearea library -->
+
+  <script>
+    // Firebase project configuration (Replace with your own Firebase config)
+    const firebaseConfig = {
+      apiKey: "AIzaSyCgEaSuwHG0Qf3QCxjvk68U1RkoWIKMqmE",
+  authDomain: "chat-3dcc7.firebaseapp.com",
+  databaseURL: "https://chat-3dcc7-default-rtdb.firebaseio.com",
+  projectId: "chat-3dcc7",
+  storageBucket: "chat-3dcc7.appspot.com",
+  messagingSenderId: "25904698660",
+  appId: "1:25904698660:web:ad783930fd62e27134cfb1"
+  };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+
+    // Get a reference to the database
+    const database = firebase.database();
+
+    // Function to get URL parameters
+    function getURLParameter(name) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(name);
+    }
+
+    // Get the recipient ID from the URL parameter
+    const recipientId = getURLParameter("recipient");
+
+    // Function to display messages
+    function displayMessage(message, isRecipient, imageUrl) {
+      const messageDiv = document.createElement("div");
+      messageDiv.style.backgroundColor = isRecipient ? "#f0f0f0" : "#cceeff";
+      messageDiv.style.padding = "5px";
+      messageDiv.style.marginBottom = "10px";
+      
+      const text = document.createElement("p");
+      text.innerHTML = emojione.toImage(message);
+      messageDiv.appendChild(text);
+
+      if (imageUrl) {
+        const image = document.createElement("img");
+        image.src = imageUrl;
+        image.style.maxWidth = "100%";
+        messageDiv.appendChild(image);
+      }
+
+      document.getElementById("messageContainer").appendChild(messageDiv);
+    }
+
+    // Event listener for new messages
+    database.ref("messages").on("child_added", (snapshot) => {
+      const messageData = snapshot.val();
+      const isRecipient = messageData.recipientId === firebase.auth().currentUser.uid;
+
+      displayMessage(messageData.message, isRecipient, messageData.imageUrl);
+    });
+
+    document.getElementById("sendMessageForm").addEventListener("submit", function(event) {
+      event.preventDefault();
+
+      const user = firebase.auth().currentUser;
+      const message = document.getElementById("messageInput").value.trim();
+      const imageInput = document.getElementById("imageInput");
+
+      if (user && (message !== "" || imageInput.files.length > 0)) {
+        const messageData = {
+          senderId: user.uid,
+          recipientId: recipientId,
+          message: message
+        };
+
+        if (imageInput.files.length > 0) {
+          const imageFile = imageInput.files[0];
+          const storageRef = firebase.storage().ref(`images/${user.uid}/${Date.now()}_${imageFile.name}`);
+          
+          storageRef.put(imageFile).then(snapshot => {
+            return snapshot.ref.getDownloadURL();
+          }).then(downloadURL => {
+            messageData.imageUrl = downloadURL;
+
+            database.ref("messages").push(messageData)
+              .then(() => {
+                document.getElementById("messageInput").value = "";
+                imageInput.value = "";
+              })
+              .catch((error) => {
+                console.error("Error sending message:", error);
+              });
+          }).catch(error => {
+            console.error("Error uploading image:", error);
+          });
+        } else {
+          database.ref("messages").push(messageData)
+            .then(() => {
+              document.getElementById("messageInput").value = "";
+            })
+            .catch((error) => {
+              console.error("Error sending message:", error);
+            });
+        }
+      }
+    });
+
+    $(document).ready(function() {
+      $("#messageInput").emojioneArea({
+        pickerPosition: "bottom"
+      });
+    });
+
+    function goBackToChat() {
+      window.location.href = "chat.html";
+    }
+  </script>
+</body>
+</html>
